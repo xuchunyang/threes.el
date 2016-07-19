@@ -38,7 +38,31 @@
   "Play the Threes game."
   (interactive)
   (switch-to-buffer threes-buffer-name)
-  (threes-mode))
+  (threes-mode)
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (insert
+     "
++------+------+------+------+
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
++------+------+------+------+
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
++------+------+------+------+
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
++------+------+------+------+
+|      |      |      |      |
+|      |      |      |      |
+|      |      |      |      |
++------+------+------+------+
+")
+    (delete-region 1 2)
+    (goto-char 1)))
 
 (provide 'threes)
 ;;; threes.el ends here
