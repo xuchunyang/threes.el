@@ -28,6 +28,8 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (defconst threes-buffer-name "*Threes*" "Name used for Threes buffer.")
 
 (defgroup threes nil
@@ -60,6 +62,15 @@
   "Face for maximum tile."
   :group 'threes)
 
+(defvar threes-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map special-mode-map)
+    (define-key map [left]  #'threes-left)
+    (define-key map [up]    #'threes-up)
+    (define-key map [right] #'threes-right)
+    (define-key map [down]  #'threes-down)
+    map))
+
 (define-derived-mode threes-mode special-mode "threes-mode"
   "A mode for play Threes."
   (buffer-disable-undo))
@@ -77,8 +88,56 @@
                        (3 3 1 1)
                        (0 3 0 6)))
 
+(defvar threes-cells-last nil)
+
 (defun threes-cells-max ()
   (apply #'max (apply #'append threes-cells)))
+
+(defun threes-add-p (n1 n2)
+  (or (and (= 1 n1) (= 2 n2))
+      (and (= 1 n2) (= 2 n1))
+      (and (> n1 2) (= n1 n2))))
+
+(defun threes-move (nums &optional right-or-down)
+  (let ((result nums))
+    (when right-or-down
+      (setq nums (nreverse nums)))
+    (if (zerop (car nums))
+        (setq result (append (cdr nums) '(0)))
+      (let ((i 0)
+            has-added)
+        (while (and (not has-added)
+                    (< i 3))
+          (let ((a (nth i nums))
+                (b (nth (+ 1 i) nums)))
+            (when (threes-add-p a b)
+              (setq result
+                    (append
+                     (cl-subseq nums 0 i)
+                     (list (+ a b))
+                     (cl-subseq nums (+ i 2) 4)
+                     '(0))
+                    has-added t)))
+          (setq i (+ i 1)))))
+    (when right-or-down
+      (setq result (nreverse result)))
+    result))
+
+(defun threes-left ()
+  "Shift the board left."
+  (interactive)
+  (let (new-cells)
+    (dotimes (i 4)
+      (push (threes-move (nth i threes-cells)) new-cells))
+    (setq threes-cells-last threes-cells
+          threes-cells (nreverse new-cells))
+    (threes-print-board)))
+
+(defun threes-undo ()
+  "Undo last move."
+  (interactive)
+  (setq threes-cells threes-cells-last)
+  (threes-print-board))
 
 (defun threes-print-board ()
   (let ((inhibit-read-only t))
