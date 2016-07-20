@@ -83,54 +83,91 @@
             s
             (make-string tailing ?\s))))
 
-(defvar threes-cells '((1 2 0 0)
-                       (2 0 0 3)
-                       (3 3 1 1)
-                       (0 3 0 6)))
+;; This is for testing
+(setq threes-cells '((1 2 0 0)
+                     (2 0 0 3)
+                     (3 3 1 1)
+                     (0 3 0 6)))
 
 (defvar threes-cells-last nil)
 
 (defun threes-cells-max ()
   (apply #'max (apply #'append threes-cells)))
 
+(defun threes-cells-transpose (cells)
+  (let (res
+        (l0 (nth 0 cells))
+        (l1 (nth 1 cells))
+        (l2 (nth 2 cells))
+        (l3 (nth 3 cells)))
+    (dotimes (i 4)
+      (push (list (nth i l0)
+                  (nth i l1)
+                  (nth i l2)
+                  (nth i l3))
+            res))
+    (nreverse res)))
+
 (defun threes-add-p (n1 n2)
   (or (and (= 1 n1) (= 2 n2))
       (and (= 1 n2) (= 2 n1))
-      (and (> n1 2) (= n1 n2))))
+      (and (> n1 2) (= n1 n2))
+      (and (= n1 0) (/= n2 0))))
 
-(defun threes-move (nums &optional right-or-down)
-  (let ((result nums))
-    (when right-or-down
-      (setq nums (nreverse nums)))
-    (if (zerop (car nums))
-        (setq result (append (cdr nums) '(0)))
-      (let ((i 0)
-            has-added)
-        (while (and (not has-added)
-                    (< i 3))
-          (let ((a (nth i nums))
-                (b (nth (+ 1 i) nums)))
-            (when (threes-add-p a b)
-              (setq result
-                    (append
-                     (cl-subseq nums 0 i)
-                     (list (+ a b))
-                     (cl-subseq nums (+ i 2) 4)
-                     '(0))
-                    has-added t)))
-          (setq i (+ i 1)))))
-    (when right-or-down
-      (setq result (nreverse result)))
-    result))
+(defun threes-move-1 (nums)
+  "Move NUMS left/up."
+  (let (i j a b)
+    (catch 'found-move
+      (dotimes (i 3)
+        (setq j (+ i 1))
+        (setq a (nth i nums)
+              b (nth j nums))
+        (when (threes-add-p a b)
+          (throw 'found-move
+                 (append (cl-subseq nums 0 i)
+                         (list (+ a b))
+                         (cl-subseq nums (+ j 1) 4)
+                         (list 0)))))
+      nums)))
+
+(defun threes-move-2 (nums)
+  "Move NUMS right/down."
+  (nreverse (threes-move-1 (nreverse nums))))
 
 (defun threes-left ()
-  "Shift the board left."
   (interactive)
   (let (new-cells)
     (dotimes (i 4)
-      (push (threes-move (nth i threes-cells)) new-cells))
+      (push (threes-move-1 (nth i threes-cells)) new-cells))
     (setq threes-cells-last threes-cells
-          threes-cells (nreverse new-cells))
+          threes-cells      (nreverse new-cells))
+    (threes-print-board)))
+
+(defun threes-right ()
+  (interactive)
+  (let (new-cells)
+    (dotimes (i 4)
+      (push (threes-move-2 (nth i threes-cells)) new-cells))
+    (setq threes-cells-last threes-cells
+          threes-cells      (nreverse new-cells))
+    (threes-print-board)))
+
+(defun threes-up ()
+  (interactive)
+  (let (new-cells)
+    (dotimes (i 4)
+      (push (threes-move-1 (nth i (threes-cells-transpose threes-cells))) new-cells))
+    (setq threes-cells-last threes-cells
+          threes-cells  (threes-cells-transpose (nreverse new-cells)))
+    (threes-print-board)))
+
+(defun threes-down ()
+  (interactive)
+  (let (new-cells)
+    (dotimes (i 4)
+      (push (threes-move-2 (nth i (threes-cells-transpose threes-cells))) new-cells))
+    (setq threes-cells-last threes-cells
+          threes-cells (threes-cells-transpose (nreverse new-cells)))
     (threes-print-board)))
 
 (defun threes-undo ()
