@@ -33,36 +33,63 @@
 (define-derived-mode threes-mode special-mode "threes-mode"
   "A mode for play Threes.")
 
+(defun threes-string-center (len s)
+  (let* ((s-len (length s))
+         (leading (/ (- len s-len) 2))
+         (tailing (- (- len s-len) leading)))
+    (concat (make-string leading ?\s)
+            s
+            (make-string tailing ?\s))))
+
+(defvar threes-cells '((1 2 0 0)
+                       (2 0 0 3)
+                       (3 3 1 1)
+                       (0 3 0 0)))
+
+(defun threes-print-board ()
+  (let ((inhibit-read-only t))
+    (erase-buffer)
+    (insert
+     "
++-----+-----+-----+-----+
+|     |     |     |     |
+|xxxxx|xxxxx|xxxxx|xxxxx|
+|     |     |     |     |
++-----+-----+-----+-----+
+|     |     |     |     |
+|xxxxx|xxxxx|xxxxx|xxxxx|
+|     |     |     |     |
++-----+-----+-----+-----+
+|     |     |     |     |
+|xxxxx|xxxxx|xxxxx|xxxxx|
+|     |     |     |     |
++-----+-----+-----+-----+
+|     |     |     |     |
+|xxxxx|xxxxx|xxxxx|xxxxx|
+|     |     |     |     |
++-----+-----+-----+-----+
+")
+    (goto-char 1)
+    (delete-char 1)
+
+    (dotimes (row 4)
+      (dotimes (col 4)
+        (search-forward "xxxxx" nil 'noerror)
+        (let* ((val (nth col (nth row threes-cells)))
+               (text (threes-string-center
+                      (length "xxxxx")
+                      (if (zerop val) "" (number-to-string val)))))
+          (replace-match text))))
+
+    (goto-char 1)))
+
 ;;;###autoload
 (defun threes ()
   "Play the Threes game."
   (interactive)
   (switch-to-buffer threes-buffer-name)
   (threes-mode)
-  (let ((inhibit-read-only t))
-    (erase-buffer)
-    (insert
-     "
-+------+------+------+------+
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-+------+------+------+------+
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-+------+------+------+------+
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-+------+------+------+------+
-|      |      |      |      |
-|      |      |      |      |
-|      |      |      |      |
-+------+------+------+------+
-")
-    (delete-region 1 2)
-    (goto-char 1)))
+  (threes-print-board))
 
 (provide 'threes)
 ;;; threes.el ends here
