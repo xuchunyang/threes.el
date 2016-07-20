@@ -209,11 +209,14 @@
                (text (threes-string-center
                       (length "xxxxx")
                       (if (zerop val) "" (number-to-string val))))
-               (face (cdr (assq val `((0 . threes-face-0)
-                                      (1 . threes-face-1)
-                                      (2 . threes-face-2)
-                                      (3 . threes-face-3)
-                                      (,(threes-cells-max) . threes-face-max))))))
+               (face (or (cdr (assq val `((0 . threes-face-0)
+                                          (1 . threes-face-1)
+                                          (2 . threes-face-2)
+                                          (3 . threes-face-3)
+                                          (,(threes-cells-max) . threes-face-max))))
+                         ;; Face for others numbers
+                         (and (/= val 0) 'threes-face-3))))
+
           (when face
             (setq text (propertize text 'face face))
             (let* ((pt (point))
