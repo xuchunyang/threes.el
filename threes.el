@@ -179,14 +179,19 @@
                                       (,(threes-cells-max) . threes-face-max))))))
           (when face
             (setq text (propertize text 'face face))
-            (save-excursion
-              (let* ((end (progn (line-move -1) (point)))
-                     (beg (- end (length "xxxxx"))))
-                (add-face-text-property beg end face)))
-            (save-excursion
-              (let* ((end (progn (line-move +1) (point)))
-                     (beg (- end (length "xxxxx"))))
-                (add-face-text-property beg end face))))
+            (let* ((pt (point))
+                   ;; 26 is the length of a line
+                   (end1 (- pt 26)) (beg1 (- end1 5))
+                   (end2 (+ pt 26)) (beg2 (- end2 5)))
+              ;; (message ">>> (%s, %s)" beg1 end1)
+              (save-excursion
+                (delete-region beg1 end1)
+                (goto-char beg1)
+                (insert (propertize "     " 'face face)))
+              (save-excursion
+                (delete-region beg2 end2)
+                (goto-char beg2)
+                (insert (propertize "     " 'face face)))))
           (replace-match text))))
 
     (goto-char 1)))
