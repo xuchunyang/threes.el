@@ -30,8 +30,39 @@
 
 (defconst threes-buffer-name "*Threes*" "Name used for Threes buffer.")
 
+(defgroup threes nil
+  "A little puzzle game."
+  :group 'games
+  :prefix "threes-")
+
+(defface threes-face-0
+  '((t . (:background "#bcd7d8")))
+  "Face for the empty title."
+  :group 'threes)
+
+(defface threes-face-1
+  '((t . (:background "#79ccfc" :foreground "white")))
+  "Face for the tile 1."
+  :group 'threes)
+
+(defface threes-face-2
+  '((t . (:background "#ef7986" :foreground "white")))
+  "Face for tile 2."
+  :group 'threes)
+
+(defface threes-face-3
+  '((t . (:background "white" :foreground "black")))
+  "Face for tile 3."
+  :group 'threes)
+
+(defface threes-face-max
+  '((t . (:background "white" :foreground "red")))
+  "Face for maximum tile."
+  :group 'threes)
+
 (define-derived-mode threes-mode special-mode "threes-mode"
-  "A mode for play Threes.")
+  "A mode for play Threes."
+  (buffer-disable-undo))
 
 (defun threes-string-center (len s)
   (let* ((s-len (length s))
@@ -44,7 +75,10 @@
 (defvar threes-cells '((1 2 0 0)
                        (2 0 0 3)
                        (3 3 1 1)
-                       (0 3 0 0)))
+                       (0 3 0 6)))
+
+(defun threes-cells-max ()
+  (apply #'max (apply #'append threes-cells)))
 
 (defun threes-print-board ()
   (let ((inhibit-read-only t))
@@ -78,7 +112,22 @@
         (let* ((val (nth col (nth row threes-cells)))
                (text (threes-string-center
                       (length "xxxxx")
-                      (if (zerop val) "" (number-to-string val)))))
+                      (if (zerop val) "" (number-to-string val))))
+               (face (cdr (assq val `((0 . threes-face-0)
+                                      (1 . threes-face-1)
+                                      (2 . threes-face-2)
+                                      (3 . threes-face-3)
+                                      (,(threes-cells-max) . threes-face-max))))))
+          (when face
+            (setq text (propertize text 'face face))
+            (save-excursion
+              (let* ((end (progn (line-move -1) (point)))
+                     (beg (- end (length "xxxxx"))))
+                (add-face-text-property beg end face)))
+            (save-excursion
+              (let* ((end (progn (line-move +1) (point)))
+                     (beg (- end (length "xxxxx"))))
+                (add-face-text-property beg end face))))
           (replace-match text))))
 
     (goto-char 1)))
