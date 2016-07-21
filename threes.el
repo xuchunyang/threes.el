@@ -98,6 +98,16 @@
 (defun threes-cells-max ()
   (apply #'max (apply #'append threes-cells)))
 
+(defun threes-cells-score ()
+  (let ((sum 0))
+    (dotimes (i 4)
+      (let ((row (nth i threes-cells)))
+        (dotimes (j 4)
+          (let ((val (nth j row)))
+            (when (> val 2)
+              (setq sum (+ sum (expt 3 (+ 1 (truncate (log (/ val 3) 2)))))))))))
+    sum))
+
 (defun threes-cells-transpose (cells)
   (let (res
         (l0 (nth 0 cells))
@@ -319,6 +329,9 @@
       (insert (format "      %s\n" (propertize "     " 'face face))
               (format "Next: %s\n" (propertize (threes-string-center 5 (number-to-string num)) 'face face))
               (format "      %s\n" (propertize "     " 'face face))))
+
+    (insert "\n")
+    (insert "Score: " (number-to-string (threes-cells-score)))
 
     (goto-char 1)))
 
