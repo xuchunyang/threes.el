@@ -152,22 +152,22 @@
   (unless (catch 'found-add
             (let (col row)
               ;; Left
-              (dotimes (i 3)
+              (dotimes (i 4)
                 (setq row (nth i threes-cells))
                 (unless (equal row (threes-move-1 row))
                   (throw 'found-add t)))
               ;; Right
-              (dotimes (i 3)
+              (dotimes (i 4)
                 (setq row (nth i threes-cells))
                 (unless (equal row (threes-move-2 row))
                   (throw 'found-add t)))
               ;; Up
-              (dotimes (i 3)
+              (dotimes (i 4)
                 (setq col (nth i (threes-cells-transpose threes-cells)))
                 (unless (equal col (threes-move-1 col))
                   (throw 'found-add t)))
               ;; Down
-              (dotimes (i 3)
+              (dotimes (i 4)
                 (setq col (nth i (threes-cells-transpose threes-cells)))
                 (unless (equal col (threes-move-2 col))
                   (throw 'found-add t)))))
@@ -341,17 +341,18 @@
           (replace-match text))))
 
     (goto-char (point-max))
-    (insert "\n\n")
-    (let* ((num threes-next-number)
-           (face (intern (format "threes-face-%d" num))))
-      (insert (format "      %s\n" (propertize "     " 'face face))
-              (format "Next: %s\n" (propertize (threes-string-center 5 (number-to-string num)) 'face face))
-              (format "      %s\n" (propertize "     " 'face face))))
 
-    (insert "\n")
-    (insert "Score: " (number-to-string (threes-cells-score)))
-    (when threes-game-over-p
-      (insert " [Game Over!]"))
+    (if threes-game-over-p
+        (progn
+          (insert "\n")
+          (insert "Score: " (number-to-string (threes-cells-score)))
+          (insert " [Game Over!]"))
+      (insert "\n\n")
+      (let* ((num threes-next-number)
+             (face (intern (format "threes-face-%d" num))))
+        (insert (format "      %s\n" (propertize "     " 'face face))
+                (format "Next: %s\n" (propertize (threes-string-center 5 (number-to-string num)) 'face face))
+                (format "      %s\n" (propertize "     " 'face face)))))
 
     (goto-char 1)))
 
