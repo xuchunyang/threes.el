@@ -144,13 +144,18 @@
   "Move NUMS right/down."
   (nreverse (threes-move-1 (nreverse nums))))
 
-(defun threes-check-move ()
+(defun threes-check-before-move ()
   (when threes-game-over-p
-    (error "Can't Move, Game Over")))
+    (error "Game Over")))
+
+(defun threes-check-after-move ()
+  (when (equal threes-cells-last threes-cells)
+    (setq threes-game-over-p t)
+    (message "Game Over")))
 
 (defun threes-left ()
   (interactive)
-  (threes-check-move)
+  (threes-check-before-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-1 (nth i threes-cells)) new-cells))
@@ -165,20 +170,19 @@
         (when (zerop (nth i last-col))
           (push i empty-pos)))
       (if (zerop (length empty-pos))
-          (progn
-            (message "Game Over")
-            (setq threes-game-over-p t))
+          (message "Can't Move")
         (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-col)
                 (prog1 threes-next-number
                   (setq threes-next-number (+ 1 (random 3)))))
         ;; (message "%s" (threes-cells-transpose trans-cells))
         (setq threes-cells (threes-cells-transpose trans-cells))))
 
+    (threes-check-after-move)
     (threes-print-board)))
 
 (defun threes-right ()
   (interactive)
-  (threes-check-move)
+  (threes-check-before-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-2 (nth i threes-cells)) new-cells))
@@ -193,20 +197,19 @@
         (when (zerop (nth i last-col))
           (push i empty-pos)))
       (if (zerop (length empty-pos))
-          (progn
-            (message "Game Over")
-            (setq threes-game-over-p t))
+          (message "Can't Move")
         (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-col)
                 (prog1 threes-next-number
                   (setq threes-next-number (+ 1 (random 3)))))
         ;; (message "%s" (threes-cells-transpose trans-cells))
         (setq threes-cells (threes-cells-transpose trans-cells))))
 
+    (threes-check-after-move)
     (threes-print-board)))
 
 (defun threes-up ()
   (interactive)
-  (threes-check-move)
+  (threes-check-before-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-1 (nth i (threes-cells-transpose threes-cells))) new-cells))
@@ -220,18 +223,17 @@
         (when (zerop (nth i last-row))
           (push i empty-pos)))
       (if (zerop (length empty-pos))
-          (progn
-            (message "Game Over")
-            (setq threes-game-over-p t))
+          (message "Can't Move")
         (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-row)
                 (prog1 threes-next-number
                   (setq threes-next-number (+ 1 (random 3)))))))
 
+    (threes-check-after-move)
     (threes-print-board)))
 
 (defun threes-down ()
   (interactive)
-  (threes-check-move)
+  (threes-check-before-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-2 (nth i (threes-cells-transpose threes-cells))) new-cells))
@@ -245,13 +247,12 @@
         (when (zerop (nth i last-row))
           (push i empty-pos)))
       (if (zerop (length empty-pos))
-          (progn
-            (message "Game Over")
-            (setq threes-game-over-p t))
+          (message "Can't Move")
         (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-row)
                 (prog1 threes-next-number
                   (setq threes-next-number (+ 1 (random 3)))))))
 
+    (threes-check-after-move)
     (threes-print-board)))
 
 (defun threes-undo ()
