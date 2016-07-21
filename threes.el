@@ -116,7 +116,7 @@
                   (nth i l2)
                   (nth i l3))
             res))
-    (nreverse res)))
+    (reverse res)))
 
 (defun threes-add-p (n1 n2)
   (or (and (= 1 n1) (= 2 n2))
@@ -142,14 +142,35 @@
 
 (defun threes-move-2 (nums)
   "Move NUMS right/down."
-  (nreverse (threes-move-1 (nreverse nums))))
+  (reverse (threes-move-1 (reverse nums))))
 
 (defun threes-check-before-move ()
   (when threes-game-over-p
     (error "Game Over")))
 
 (defun threes-check-after-move ()
-  (when (equal threes-cells-last threes-cells)
+  (unless (catch 'found-add
+            (let (col row)
+              ;; Left
+              (dotimes (i 3)
+                (setq row (nth i threes-cells))
+                (unless (equal row (threes-move-1 row))
+                  (throw 'found-add t)))
+              ;; Right
+              (dotimes (i 3)
+                (setq row (nth i threes-cells))
+                (unless (equal row (threes-move-2 row))
+                  (throw 'found-add t)))
+              ;; Up
+              (dotimes (i 3)
+                (setq col (nth i (threes-cells-transpose threes-cells)))
+                (unless (equal col (threes-move-1 col))
+                  (throw 'found-add t)))
+              ;; Down
+              (dotimes (i 3)
+                (setq col (nth i (threes-cells-transpose threes-cells)))
+                (unless (equal col (threes-move-2 col))
+                  (throw 'found-add t)))))
     (setq threes-game-over-p t)
     (message "Game Over")))
 
