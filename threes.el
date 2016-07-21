@@ -91,6 +91,10 @@
 
 (defvar threes-cells-last nil)
 
+(defvar threes-next-number nil)
+
+(defvar threes-game-over-p nil)
+
 (defun threes-cells-max ()
   (apply #'max (apply #'append threes-cells)))
 
@@ -134,40 +138,114 @@
   "Move NUMS right/down."
   (nreverse (threes-move-1 (nreverse nums))))
 
+(defun threes-check-move ()
+  (when threes-game-over-p
+    (error "Can't Move, Game Over")))
+
 (defun threes-left ()
   (interactive)
+  (threes-check-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-1 (nth i threes-cells)) new-cells))
     (setq threes-cells-last threes-cells
           threes-cells      (nreverse new-cells))
+
+    ;; Insert a new cell
+    (let* ((trans-cells (threes-cells-transpose threes-cells))
+           (last-col (nth 3 trans-cells))
+           (empty-pos '()))
+      (dotimes (i 4)
+        (when (zerop (nth i last-col))
+          (push i empty-pos)))
+      (if (zerop (length empty-pos))
+          (progn
+            (message "Game Over")
+            (setq threes-game-over-p t))
+        (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-col)
+                (prog1 threes-next-number
+                  (setq threes-next-number (+ 1 (random 3)))))
+        ;; (message "%s" (threes-cells-transpose trans-cells))
+        (setq threes-cells (threes-cells-transpose trans-cells))))
+
     (threes-print-board)))
 
 (defun threes-right ()
   (interactive)
+  (threes-check-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-2 (nth i threes-cells)) new-cells))
     (setq threes-cells-last threes-cells
           threes-cells      (nreverse new-cells))
+
+    ;; Insert a new cell
+    (let* ((trans-cells (threes-cells-transpose threes-cells))
+           (last-col (nth 0 trans-cells))
+           (empty-pos '()))
+      (dotimes (i 4)
+        (when (zerop (nth i last-col))
+          (push i empty-pos)))
+      (if (zerop (length empty-pos))
+          (progn
+            (message "Game Over")
+            (setq threes-game-over-p t))
+        (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-col)
+                (prog1 threes-next-number
+                  (setq threes-next-number (+ 1 (random 3)))))
+        ;; (message "%s" (threes-cells-transpose trans-cells))
+        (setq threes-cells (threes-cells-transpose trans-cells))))
+
     (threes-print-board)))
 
 (defun threes-up ()
   (interactive)
+  (threes-check-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-1 (nth i (threes-cells-transpose threes-cells))) new-cells))
     (setq threes-cells-last threes-cells
           threes-cells  (threes-cells-transpose (nreverse new-cells)))
+
+    ;; Insert a new cell
+    (let* ((last-row (nth 3 threes-cells))
+           (empty-pos '()))
+      (dotimes (i 4)
+        (when (zerop (nth i last-row))
+          (push i empty-pos)))
+      (if (zerop (length empty-pos))
+          (progn
+            (message "Game Over")
+            (setq threes-game-over-p t))
+        (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-row)
+                (prog1 threes-next-number
+                  (setq threes-next-number (+ 1 (random 3)))))))
+
     (threes-print-board)))
 
 (defun threes-down ()
   (interactive)
+  (threes-check-move)
   (let (new-cells)
     (dotimes (i 4)
       (push (threes-move-2 (nth i (threes-cells-transpose threes-cells))) new-cells))
     (setq threes-cells-last threes-cells
           threes-cells (threes-cells-transpose (nreverse new-cells)))
+
+    ;; Insert a new cell
+    (let* ((last-row (nth 0 threes-cells))
+           (empty-pos '()))
+      (dotimes (i 4)
+        (when (zerop (nth i last-row))
+          (push i empty-pos)))
+      (if (zerop (length empty-pos))
+          (progn
+            (message "Game Over")
+            (setq threes-game-over-p t))
+        (setcar (nthcdr (nth (random (length empty-pos)) empty-pos) last-row)
+                (prog1 threes-next-number
+                  (setq threes-next-number (+ 1 (random 3)))))))
+
     (threes-print-board)))
 
 (defun threes-undo ()
@@ -234,6 +312,14 @@
                 (insert (propertize "     " 'face face)))))
           (replace-match text))))
 
+    (goto-char (point-max))
+    (insert "\n\n")
+    (let* ((num threes-next-number)
+           (face (intern (format "threes-face-%d" num))))
+      (insert (format "      %s\n" (propertize "     " 'face face))
+              (format "Next: %s\n" (propertize (threes-string-center 5 (number-to-string num)) 'face face))
+              (format "      %s\n" (propertize "     " 'face face))))
+
     (goto-char 1)))
 
 ;;;###autoload
@@ -242,6 +328,7 @@
   (interactive)
   (switch-to-buffer threes-buffer-name)
   (threes-mode)
+  (setq threes-next-number (+ 1 (random 3)))
   (threes-print-board))
 
 (provide 'threes)
