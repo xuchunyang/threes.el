@@ -1,1 +1,9 @@
-~threes.el~ is an Emacs clone of [[https://en.wikipedia.org/wiki/Threes][Threes!]].
+* threes.el
+
+~threes.el~ is an Emacs clone of [[https://en.wikipedia.org/wiki/Threes][Threes]].
+
+[[file:screenshot.png]]
+
+** Usage
+
+Type =M-x threes=, then use the arrow keys to move.

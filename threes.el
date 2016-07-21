@@ -1,4 +1,4 @@
-;;; threes.el --- Emacs clone of Threes! (game)  -*- lexical-binding: t; -*-
+;;; threes.el --- Emacs clone of Threes (a tiny puzzle game)  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016  Chunyang Xu
 
@@ -24,7 +24,7 @@
 
 ;;; Commentary:
 
-;;
+;; To play, type M-x threes, then use the arrow keys to move.
 
 ;;; Code:
 
