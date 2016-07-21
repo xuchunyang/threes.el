@@ -3,7 +3,7 @@
 ;; Copyright (C) 2016  Chunyang Xu
 
 ;; Author: Chunyang Xu <xuchunyang.me@gmail.com>
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (seq "1.11"))
 ;; Keywords: game
 ;; URL: https://github.com/xuchunyang/threes.el
 
@@ -28,7 +28,7 @@
 
 ;;; Code:
 
-(require 'cl-lib)
+(require 'seq)
 
 (defconst threes-buffer-name "*Threes*" "Name used for Threes buffer.")
 
@@ -134,9 +134,9 @@
               b (nth j nums))
         (when (threes-add-p a b)
           (throw 'found-move
-                 (append (cl-subseq nums 0 i)
+                 (append (seq-subseq nums 0 i)
                          (list (+ a b))
-                         (cl-subseq nums (+ j 1) 4)
+                         (seq-subseq nums (+ j 1) 4)
                          (list 0)))))
       nums)))
 
@@ -361,10 +361,20 @@
   (interactive)
   (switch-to-buffer threes-buffer-name)
   (threes-mode)
-  (setq threes-cells '((1 2 0 0)
-                       (2 0 0 3)
-                       (3 3 1 1)
-                       (0 3 0 6)))
+  (setq threes-cells
+        (let ((l (make-list 16 0))
+              visited pos)
+          (while (< (length visited) 7)
+            (setq pos (random 16))
+            (unless (memq pos visited)
+              (setcar (nthcdr pos l) (+ 1 (random 3)))
+              (push pos visited)))
+          (seq-partition l 4))
+        ;; '((1 2 0 0)
+        ;;   (2 0 0 3)
+        ;;   (3 3 1 1)
+        ;;   (0 3 0 6))
+        )
   (setq threes-game-over-p nil)
   (setq threes-next-number (+ 1 (random 3)))
   (threes-print-board))
