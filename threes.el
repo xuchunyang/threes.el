@@ -83,11 +83,7 @@
             s
             (make-string tailing ?\s))))
 
-;; This is for testing
-(setq threes-cells '((1 2 0 0)
-                     (2 0 0 3)
-                     (3 3 1 1)
-                     (0 3 0 6)))
+(defvar threes-cells nil)
 
 (defvar threes-cells-last nil)
 
@@ -332,6 +328,8 @@
 
     (insert "\n")
     (insert "Score: " (number-to-string (threes-cells-score)))
+    (when threes-game-over-p
+      (insert " [Game Over!]"))
 
     (goto-char 1)))
 
@@ -341,6 +339,11 @@
   (interactive)
   (switch-to-buffer threes-buffer-name)
   (threes-mode)
+  (setq threes-cells '((1 2 0 0)
+                       (2 0 0 3)
+                       (3 3 1 1)
+                       (0 3 0 6)))
+  (setq threes-game-over-p nil)
   (setq threes-next-number (+ 1 (random 3)))
   (threes-print-board))
 
