@@ -126,7 +126,7 @@
 
 (defun threes-move-1 (nums)
   "Move NUMS left/up."
-  (let (i j a b)
+  (let (j a b)
     (catch 'found-move
       (dotimes (i 3)
         (setq j (+ i 1))
