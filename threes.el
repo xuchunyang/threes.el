@@ -1,10 +1,10 @@
-;;; threes.el --- Emacs clone of Threes (a tiny puzzle game)  -*- lexical-binding: t; -*-
+;;; threes.el --- A clone of Threes (a tiny puzzle game)  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016  Chunyang Xu
 
 ;; Author: Chunyang Xu <xuchunyang.me@gmail.com>
 ;; Package-Requires: ((emacs "24") (seq "1.11"))
-;; Keywords: game
+;; Keywords: games
 ;; URL: https://github.com/xuchunyang/threes.el
 
 ;; This file is not part of GNU Emacs
