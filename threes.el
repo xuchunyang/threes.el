@@ -73,6 +73,7 @@
 
 (define-derived-mode threes-mode special-mode "threes-mode"
   "A mode for play Threes."
+  (setq show-trailing-whitespace nil)
   (buffer-disable-undo))
 
 (defun threes-string-center (len s)
