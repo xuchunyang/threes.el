@@ -381,5 +381,8 @@
   (setq threes-next-number (+ 1 (random 3)))
   (threes-print-board))
 
+;;;###autoload
+(define-key menu-bar-games-menu [threes] '(menu-item "Threes" threes :help "Play Threes"))
+
 (provide 'threes)
 ;;; threes.el ends here
